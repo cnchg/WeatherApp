@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Weather App</string>
+    <string name="action_settings">Settings</string>
+    <string name="enterCityTextView">Enter a city...</string>
+    <string name="enterCityEditView"></string>
+    <string name="getWeatherButton">What\'s The Weather? </string>
+    <string name="aNote">(US cites only)</string>
+    <string name="switchUnit">&#176;C &#176;F</string>
+    <string name="switchC">&#176;C</string>
+    <string name="switchF">&#176;F</string>
+    <string name="weatherTemp">76&#176;</string>
+    <string name="locationTextView">Location</string>
+    <string name="localCondition">Clear</string>
+</resources>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/content_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.tricloudcommunications.ce.weatherapp.MainActivity"
+    tools:showIn="@layout/activity_main"
+    android:background="@drawable/bg_image">
+
+    <TextView
+        android:text="@string/enterCityTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="31dp"
+        android:id="@+id/mainTextView"
+        android:textAlignment="center"
+        android:textSize="64sp"
+        android:textColor="@android:color/white"
+        android:layout_marginStart="89dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="@string/getWeatherButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="79dp"
+        android:id="@+id/getWeatherButton"
+        android:layout_below="@+id/enterLocationEditText"
+        android:layout_centerHorizontal="true"
+        android:textSize="28sp"
+        android:onClick="getWeather"
+        android:padding="15dp"
+        android:background="@android:color/holo_purple"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:text="@string/aNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/aNoteTextView"
+        android:textSize="18sp"
+        android:textColor="@android:color/white"
+        android:layout_below="@+id/mainTextView"
+        android:layout_centerHorizontal="true" />
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName"
+        android:labelFor="@+id/enterLocationEditText"
+        android:ems="10"
+        android:layout_marginTop="29dp"
+        android:id="@+id/enterLocationEditText"
+        android:fontFamily="sans-serif"
+        android:textAlignment="center"
+        android:textSize="34sp"
+        android:layout_below="@+id/unitSwitch"
+        android:layout_alignParentStart="true"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:text="@string/switchF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/unitF"
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:layout_alignBaseline="@+id/unitSwitch"
+        android:layout_alignBottom="@+id/unitSwitch"
+        android:layout_alignStart="@+id/aNoteTextView" />
+
+    <TextView
+        android:text="@string/switchC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/unitC"
+        android:textSize="24sp"
+        android:textColor="@android:color/white"
+        android:layout_alignBaseline="@+id/unitSwitch"
+        android:layout_alignBottom="@+id/unitSwitch"
+        android:layout_alignEnd="@+id/aNoteTextView" />
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="39dp"
+        android:id="@+id/unitSwitch"
+        android:textSize="24sp"
+        android:layout_below="@+id/aNoteTextView"
+        android:layout_centerHorizontal="true"
+        android:textOn="@string/switchC"
+        android:textOff="@string/switchF"
+        android:checked="false" />
+
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/getWeatherButton"
+        android:layout_alignParentStart="true"
+        android:id="@+id/forecastGridLayout"
+        android:visibility="visible"
+        android:elevation="1dp">
+
+        <TextView
+            android:text="@string/localCondition"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/localConditionTextView"
+            android:textSize="24sp"
+            android:textColor="@android:color/white" />
+
+        <TextView
+            android:text="@string/weatherTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="190dp"
+            android:id="@+id/tempTextView"
+            android:textColor="@android:color/white"
+            android:textSize="154sp"
+            android:layout_row="8"
+            android:layout_column="0" />
+
+        <TextView
+            android:text="@string/locationTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/locationTextView"
+            android:textSize="30sp"
+            android:layout_row="0"
+            android:layout_column="1"
+            android:textColor="@android:color/white" />
+    </GridLayout>
+
+</RelativeLayout>
