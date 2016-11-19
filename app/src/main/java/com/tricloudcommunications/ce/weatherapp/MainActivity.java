@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.Switch;
@@ -25,6 +26,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -38,13 +40,23 @@ public class MainActivity extends AppCompatActivity {
 
     EditText cityInput;
     Switch unitSwitch;
+    TextView localTempTextView;
+    TextView localLocationTextView;
+    TextView localConditionTextView;
+    TextView localConditionDescriptionTextView;
     String unitType = "";
-    GridLayout foreCastGrid;
-    TextView currentTemp;
-    String weatherWeather;
-    String weatherTemp;
-    String currentLongitude = "";
-    String currentLatitude = "";
+
+    //Local weather variables
+    String localLongitude = "";
+    String localLatitude = "";
+    String localName;
+    String localCondition = "";
+    String localConditionDeescription = "";
+    String localConditionIcon = "";
+    String localForecastHigh = "";
+    String localForecastLow  = "";
+    double localTemp;
+    String localTempFinal = "";
 
     public void getWeather(View view) {
 
@@ -55,16 +67,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i("Button Status: ", "Button has been clicked and City Entered: " + city);
 
         try {
-
-            if (unitSwitch.isChecked()) {
-                //Log.i("Switch Status", String.valueOf(unitSwitch.getTextOn()));
-                unitType = "metric";
-
-            } else {
-                //Log.i("Switch Status", String.valueOf(unitSwitch.getTextOff()));
-                unitType = "imperial";
-            }
-
 
             if (city.length() > 1) {
 
@@ -95,9 +97,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void getCurrentLocation(){
 
-        //Get the Cuurent user location
+        //Get the Current user location
         LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
+        //Conditions for asking user permission to access location information
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
             //    ActivityCompat#requestPermissions
@@ -123,12 +126,20 @@ public class MainActivity extends AppCompatActivity {
         double longitude = location.getLongitude();
         double latitude = location.getLatitude();
 
-        currentLongitude = String.valueOf(longitude);
-        currentLatitude = String.valueOf(latitude);
+        localLongitude = String.valueOf(longitude);
+        localLatitude = String.valueOf(latitude);
 
         Log.i("longitude", String.valueOf(longitude));
         Log.i("latitude", String.valueOf(latitude));
 
+
+    }
+
+    public void executeLocalWeather(){
+
+        //start and execute the LocalWeather() class that you wrote below
+        LocalWeather locWeather = new LocalWeather();
+        locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+localLatitude+"&lon="+localLongitude+"&units="+unitType+"&appid=968ed395d494be9817a5c648ed7aa697");
 
     }
 
@@ -153,13 +164,50 @@ public class MainActivity extends AppCompatActivity {
 
         cityInput = (EditText) findViewById(R.id.enterLocationEditText);
         unitSwitch = (Switch) findViewById(R.id.unitSwitch);
-        foreCastGrid = (GridLayout) findViewById(R.id.forecastGridLayout);
-        currentTemp = (TextView) findViewById(R.id.tempTextView);
+        localTempTextView = (TextView) findViewById(R.id.localTempTextView);
+        localLocationTextView = (TextView) findViewById(R.id.localLocationTextView);
+        localConditionTextView = (TextView) findViewById(R.id.localConditionTextView);
+        localConditionDescriptionTextView = (TextView) findViewById(R.id.localConditionDescriptionTextView);
 
+        //Call the get user GPS location data like latitude and longitude
         getCurrentLocation();
 
-        LocalWeather locWeather = new LocalWeather();
-        locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+currentLatitude+"&lon="+currentLongitude+"&appid=968ed395d494be9817a5c648ed7aa697");
+        //Check the position if the forecast unit type  like Celcius of Ferehenhight
+        if (unitSwitch.isChecked()) {
+            Log.i("Switch Status", String.valueOf(unitSwitch.getTextOn()));
+            unitType = "metric";
+
+        } else {
+            Log.i("Switch Status", String.valueOf(unitSwitch.getTextOff()));
+            unitType = "imperial";
+        }
+
+        //Call the localWeather function which will execute the localWeather class
+        executeLocalWeather();
+
+        //Switch Even listener. Listen for when the switch is toggled
+        unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+
+                //Check the position if the forecast unit type  like Celcius of Ferehenhight
+                if (unitSwitch.isChecked()) {
+                    Log.i("Switch Status", String.valueOf(unitSwitch.getTextOn()));
+                    unitType = "metric";
+                    executeLocalWeather();
+
+                } else {
+                    Log.i("Switch Status", String.valueOf(unitSwitch.getTextOff()));
+                    unitType = "imperial";
+                    executeLocalWeather();
+                }
+
+
+            }
+
+        });
+
 
     }
 
@@ -171,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
 
             String result = "";
             URL url;
-            HttpURLConnection urlConnection = null;
+            HttpURLConnection urlConnection;
 
             try {
                 url = new URL(urls[0]);
@@ -189,11 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
                 return result;
 
-            } catch (MalformedURLException e) {
-
-                e.printStackTrace();
-
-            } catch (IOException e) {
+            } catch (Exception e) {
 
                 e.printStackTrace();
 
@@ -206,7 +250,6 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
-            foreCastGrid.setVisibility(View.VISIBLE);
 
             try{
 
@@ -225,7 +268,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.i("main", jsonPartWeatherInfo.getString("main"));
                     Log.i("description", jsonPartWeatherInfo.getString("description"));
 
-                    currentTemp.setText("Temp: " + jsonPartWeatherInfo.getString("main"));
+                    //currentTemp.setText("Temp: " + jsonPartWeatherInfo.getString("main"));
                     Log.i("API Content", result);
 
                 }
@@ -246,7 +289,7 @@ public class MainActivity extends AppCompatActivity {
 
             String result = "";
             URL url;
-            HttpURLConnection urlconnection = null;
+            HttpURLConnection urlconnection;
 
             try {
 
@@ -267,12 +310,10 @@ public class MainActivity extends AppCompatActivity {
 
                 return result;
 
-            } catch (MalformedURLException e) {
+            } catch (Exception e) {
 
                 e.printStackTrace();
 
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
 
@@ -283,10 +324,51 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
 
+            try {
+
+                JSONObject jsonObject = new JSONObject(result);
+                JSONObject mainInfo = jsonObject.getJSONObject("main");
+
+                localName = jsonObject.getString("name");
+                localTemp = mainInfo.getDouble("temp");
+                localTempFinal = String.format("%.0f", localTemp);
+                localForecastHigh = mainInfo.getString("temp_max");
+                localForecastLow = mainInfo.getString("temp_min");
+
+                //Set the data in the TextView
+                localLocationTextView.setText(localName);
+                localTempTextView.setText(localTempFinal + (char) 0x00B0); // to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+
+                String locaWeatherInfo = jsonObject.getString("weather");
+                JSONArray jsonArrLocalWeatherInfo = new JSONArray(locaWeatherInfo);
+                for (int i = 0; i < jsonArrLocalWeatherInfo.length(); i++){
+
+                    JSONObject jsonPartLocalWeatherInfo = jsonArrLocalWeatherInfo.getJSONObject(i);
+
+                    localCondition = jsonPartLocalWeatherInfo.getString("main");
+                    localConditionDeescription = jsonPartLocalWeatherInfo.getString("description");
+                    localConditionIcon = jsonPartLocalWeatherInfo.getString("icon");
+                    
+                    //Set the data in the TextView
+                    localConditionTextView.setText(localCondition);
+                    localConditionDescriptionTextView.setText(localConditionDeescription);
+
+                    Log.i("Main", jsonPartLocalWeatherInfo.getString("main"));
+                    Log.i("Main Description", jsonPartLocalWeatherInfo.getString("description"));
+
+                }
+
+                Log.i("Local Temp", mainInfo.getString("temp"));
+                Log.i("Local Name", localName);
+
+
+            } catch (JSONException e) {
+
+                e.printStackTrace();
+
+            }
+
             Log.i("Coordinates API Content", result);
-
-
-
 
         }
     }
