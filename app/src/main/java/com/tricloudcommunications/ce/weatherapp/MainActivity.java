@@ -46,6 +46,8 @@ public class MainActivity extends AppCompatActivity {
 
     ImageView nearMeImageView;
     ImageView localConditionIconImageView;
+    ImageView localForecastHighIconImageView;
+    ImageView localForecastLowIconImageView;
     EditText cityInput;
     Switch unitSwitch;
     GridLayout forecastGridLauout;
@@ -86,8 +88,12 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("City Status: ", city);
                 Log.i("Unit Type", unitType);
 
-                DownLoadTask task = new DownLoadTask();
-                task.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
+                //DownLoadTask task = new DownLoadTask();
+                //task.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
+
+                //start and execute the LocalWeather() class that you wrote below
+                LocalWeather locWeather = new LocalWeather();
+                locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
 
 
             } else {
@@ -203,6 +209,8 @@ public class MainActivity extends AppCompatActivity {
 
         nearMeImageView = (ImageView) findViewById(R.id.nearMeImageView);
         localConditionIconImageView = (ImageView) findViewById(R.id.localConditionIconImageView);
+        localForecastHighIconImageView = (ImageView) findViewById(R.id.localForeCastHighIconImageView);
+        localForecastLowIconImageView = (ImageView) findViewById(R.id.localForecastLowIconImageView);
         cityInput = (EditText) findViewById(R.id.enterLocationEditText);
         unitSwitch = (Switch) findViewById(R.id.unitSwitch);
         forecastGridLauout = (GridLayout) findViewById(R.id.forecastGridLayout);
@@ -408,6 +416,8 @@ public class MainActivity extends AppCompatActivity {
                     localCondition = jsonPartLocalWeatherInfo.getString("main");
                     localConditionDeescription = jsonPartLocalWeatherInfo.getString("description");
                     localConditionIcon = jsonPartLocalWeatherInfo.getString("icon");
+                    localForecastHighIconImageView.setVisibility(View.VISIBLE);
+                    localForecastLowIconImageView.setVisibility(View.VISIBLE);
                     
                     //Set the data in the TextView
                     localConditionTextView.setText(localCondition);
