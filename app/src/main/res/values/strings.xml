@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Weather App</string>
     <string name="action_settings">Settings</string>
+    <string name="nearMeImageView">Near Me Icon Image</string>
     <string name="enterCityTextView">Enter a city&#8230;</string>
     <string name="enterCityEditView">Please Enter a City or Zip Code</string>
     <string name="getWeatherButton">What\'s The Weather? </string>
@@ -12,4 +13,9 @@
     <string name="locationTextView">Location</string>
     <string name="localCondition">Clear</string>
     <string name="localConditionDescription">Cloud Cover</string>
+    <string name="localConditionIcon">Condition Icon</string>
+    <string name="localForecastHigh">50&#176;</string>
+    <string name="localForecastLow">12&#176;</string>
+    <string name="localForeCastHighIcon">Forecast High Icon</string>
+    <string name="localForecastLowIcon">Forecast Low Icon</string>
 </resources>

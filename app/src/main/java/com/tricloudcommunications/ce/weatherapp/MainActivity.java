@@ -3,6 +3,9 @@ package com.tricloudcommunications.ce.weatherapp;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
@@ -11,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompatBase;
+import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -21,6 +25,7 @@ import android.view.WindowManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
+import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,15 +40,21 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
+    ImageView nearMeImageView;
+    ImageView localConditionIconImageView;
     EditText cityInput;
     Switch unitSwitch;
+    GridLayout forecastGridLauout;
     TextView localTempTextView;
     TextView localLocationTextView;
     TextView localConditionTextView;
     TextView localConditionDescriptionTextView;
+    TextView localForeCastHighTextView;
+    TextView localForecastLowTextView;
     String unitType = "";
 
     //Local weather variables
@@ -53,8 +64,10 @@ public class MainActivity extends AppCompatActivity {
     String localCondition = "";
     String localConditionDeescription = "";
     String localConditionIcon = "";
-    String localForecastHigh = "";
-    String localForecastLow  = "";
+    double localForecastHigh;
+    String localForecastHighFinal = "";
+    double localForecastLow;
+    String localForecastLowFinal = "";
     double localTemp;
     String localTempFinal = "";
 
@@ -128,6 +141,7 @@ public class MainActivity extends AppCompatActivity {
 
         localLongitude = String.valueOf(longitude);
         localLatitude = String.valueOf(latitude);
+        nearMeImageView.setVisibility(View.VISIBLE);
 
         Log.i("longitude", String.valueOf(longitude));
         Log.i("latitude", String.valueOf(latitude));
@@ -140,6 +154,31 @@ public class MainActivity extends AppCompatActivity {
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
         locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+localLatitude+"&lon="+localLongitude+"&units="+unitType+"&appid=968ed395d494be9817a5c648ed7aa697");
+
+
+    }
+
+    public void executeWeatherIconDownloader(String iconImageName){
+
+        //start and execute the ImageDownloader() class to download the weather icon image
+        ImageDownloader downloadImageTask = new ImageDownloader();
+        Bitmap myImage;
+
+        try {
+
+            myImage = downloadImageTask.execute("http://openweathermap.org/img/w/"+iconImageName+".png").get();
+            //myImage = downloadImageTask.execute("http://openweathermap.org/img/w/10d.png").get();
+
+            //set the image in the Image View
+            localConditionIconImageView.setImageBitmap(myImage);
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+
 
     }
 
@@ -162,12 +201,27 @@ public class MainActivity extends AppCompatActivity {
         //Will will pop up when user click editView.
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        nearMeImageView = (ImageView) findViewById(R.id.nearMeImageView);
+        localConditionIconImageView = (ImageView) findViewById(R.id.localConditionIconImageView);
         cityInput = (EditText) findViewById(R.id.enterLocationEditText);
         unitSwitch = (Switch) findViewById(R.id.unitSwitch);
+        forecastGridLauout = (GridLayout) findViewById(R.id.forecastGridLayout);
         localTempTextView = (TextView) findViewById(R.id.localTempTextView);
         localLocationTextView = (TextView) findViewById(R.id.localLocationTextView);
         localConditionTextView = (TextView) findViewById(R.id.localConditionTextView);
         localConditionDescriptionTextView = (TextView) findViewById(R.id.localConditionDescriptionTextView);
+        localForeCastHighTextView = (TextView) findViewById(R.id.localForeCastHighTextView);
+        localForecastLowTextView = (TextView) findViewById(R.id.localForecastLowTextView);
+
+
+        /* Set the background alpha color for the forecastGridLayoutint
+            alpha = 85;
+            textView.setBackgroundColor(ColorUtils.setAlphaComponent(Color.Red,alpha));
+
+            Source: http://stackoverflow.com/questions/15319635/manipulate-alpha-bytes-of-java-android-color-int
+        */
+        int alpha = 85;
+        forecastGridLauout.setBackgroundColor(ColorUtils.setAlphaComponent(Color.BLACK,alpha));
 
         //Call the get user GPS location data like latitude and longitude
         getCurrentLocation();
@@ -184,6 +238,8 @@ public class MainActivity extends AppCompatActivity {
 
         //Call the localWeather function which will execute the localWeather class
         executeLocalWeather();
+
+
 
         //Switch Even listener. Listen for when the switch is toggled
         unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -332,15 +388,19 @@ public class MainActivity extends AppCompatActivity {
                 localName = jsonObject.getString("name");
                 localTemp = mainInfo.getDouble("temp");
                 localTempFinal = String.format("%.0f", localTemp);
-                localForecastHigh = mainInfo.getString("temp_max");
-                localForecastLow = mainInfo.getString("temp_min");
+                localForecastHigh = mainInfo.getDouble("temp_max");
+                localForecastHighFinal = String.format("%.0f", localForecastHigh);
+                localForecastLow = mainInfo.getDouble("temp_min");
+                localForecastLowFinal = String.format("%.0f", localForecastLow);
 
                 //Set the data in the TextView
                 localLocationTextView.setText(localName);
                 localTempTextView.setText(localTempFinal + (char) 0x00B0); // to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+                localForeCastHighTextView.setText(localForecastHighFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+                localForecastLowTextView.setText(localForecastLowFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
 
-                String locaWeatherInfo = jsonObject.getString("weather");
-                JSONArray jsonArrLocalWeatherInfo = new JSONArray(locaWeatherInfo);
+                String localWeatherInfo = jsonObject.getString("weather");
+                JSONArray jsonArrLocalWeatherInfo = new JSONArray(localWeatherInfo);
                 for (int i = 0; i < jsonArrLocalWeatherInfo.length(); i++){
 
                     JSONObject jsonPartLocalWeatherInfo = jsonArrLocalWeatherInfo.getJSONObject(i);
@@ -353,8 +413,12 @@ public class MainActivity extends AppCompatActivity {
                     localConditionTextView.setText(localCondition);
                     localConditionDescriptionTextView.setText(localConditionDeescription);
 
+                    //Call the executeWetherIconDownloader function which will execute the ImageDownLoader class whioh sets the images in the Images View
+                    executeWeatherIconDownloader(localConditionIcon);
+
                     Log.i("Main", jsonPartLocalWeatherInfo.getString("main"));
                     Log.i("Main Description", jsonPartLocalWeatherInfo.getString("description"));
+                    Log.i("Main Icon", jsonPartLocalWeatherInfo.getString("icon"));
 
                 }
 
@@ -371,6 +435,40 @@ public class MainActivity extends AppCompatActivity {
             Log.i("Coordinates API Content", result);
 
         }
+    }
+
+    public class ImageDownloader extends AsyncTask<String, Void, Bitmap>{
+
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+
+            String result;
+            URL url;
+            HttpURLConnection urlConnection;
+
+            try {
+
+                url = new URL(urls[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+                return myBitmap;
+
+            } catch (MalformedURLException e) {
+
+                e.printStackTrace();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
+
     }
 
     @Override
