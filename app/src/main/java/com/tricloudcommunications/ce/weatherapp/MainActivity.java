@@ -1,6 +1,7 @@
 package com.tricloudcommunications.ce.weatherapp;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -22,6 +23,7 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.GridLayout;
@@ -57,14 +59,16 @@ public class MainActivity extends AppCompatActivity {
     TextView localConditionDescriptionTextView;
     TextView localForeCastHighTextView;
     TextView localForecastLowTextView;
+    String city = "";
     String unitType = "";
+    Boolean weatherSearch = false;
 
     //Local weather variables
     String localLongitude = "";
     String localLatitude = "";
     String localName;
     String localCondition = "";
-    String localConditionDeescription = "";
+    String localConditionDescription = "";
     String localConditionIcon = "";
     double localForecastHigh;
     String localForecastHighFinal = "";
@@ -75,7 +79,12 @@ public class MainActivity extends AppCompatActivity {
 
     public void getWeather(View view) {
 
-        String city = String.valueOf(cityInput.getText()).trim();
+        weatherSearch = true;
+
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(cityInput.getWindowToken(), 0);
+
+        city = String.valueOf(cityInput.getText()).trim();
         //city = city.trim();
         city = city.replaceAll(" ", "%20");
 
@@ -88,13 +97,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("City Status: ", city);
                 Log.i("Unit Type", unitType);
 
-                //DownLoadTask task = new DownLoadTask();
-                //task.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
-
-                //start and execute the LocalWeather() class that you wrote below
-                LocalWeather locWeather = new LocalWeather();
-                locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
-
+                executeWeather();
 
             } else {
 
@@ -155,12 +158,23 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void executeLocalWeather(){
+    public void executeWeather(){
 
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
-        locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+localLatitude+"&lon="+localLongitude+"&units="+unitType+"&appid=968ed395d494be9817a5c648ed7aa697");
 
+        if (weatherSearch.equals(false)){
+
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+localLatitude+"&lon="+localLongitude+"&units="+unitType+"&appid=968ed395d494be9817a5c648ed7aa697");
+
+            //Log.i("Weather Search is: ", weatherSearch.toString() + " lat:" + localLatitude + " lon:" + localLongitude + " unitType:" + unitType);
+
+        }else{
+
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
+
+            //Log.i("Weather Search is: ", weatherSearch.toString() + " City:" + city + " unitType:" + unitType);
+        }
 
     }
 
@@ -244,8 +258,8 @@ public class MainActivity extends AppCompatActivity {
             unitType = "imperial";
         }
 
-        //Call the localWeather function which will execute the localWeather class
-        executeLocalWeather();
+        //Call the executeWeather function which will execute the localWeather class
+        executeWeather();
 
 
 
@@ -259,22 +273,158 @@ public class MainActivity extends AppCompatActivity {
                 if (unitSwitch.isChecked()) {
                     Log.i("Switch Status", String.valueOf(unitSwitch.getTextOn()));
                     unitType = "metric";
-                    executeLocalWeather();
+
+                    executeWeather();
 
                 } else {
                     Log.i("Switch Status", String.valueOf(unitSwitch.getTextOff()));
                     unitType = "imperial";
-                    executeLocalWeather();
-                }
 
+                    executeWeather();
+                }
 
             }
 
         });
 
+    }
+
+    public class LocalWeather extends AsyncTask<String, Void, String>{
+
+        @Override
+        protected String doInBackground(String... urls) {
+
+            String result = "";
+            URL url;
+            HttpURLConnection urlconnection;
+
+            try {
+
+                url = new URL (urls[0]);
+                urlconnection = (HttpURLConnection) url.openConnection();
+                InputStream inputStream = urlconnection.getInputStream();
+                InputStreamReader reader = new InputStreamReader(inputStream);
+                int data = reader.read();
+
+                while (data != -1){
+
+                    char current = (char) data;
+
+                    result += current;
+
+                    data = reader.read();
+                }
+
+                return result;
+
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+
+            try {
+
+                JSONObject jsonObject = new JSONObject(result);
+                JSONObject mainInfo = jsonObject.getJSONObject("main");
+
+                localName = jsonObject.getString("name");
+                localTemp = mainInfo.getDouble("temp");
+                localTempFinal = String.format("%.0f", localTemp);
+                localForecastHigh = mainInfo.getDouble("temp_max");
+                localForecastHighFinal = String.format("%.0f", localForecastHigh);
+                localForecastLow = mainInfo.getDouble("temp_min");
+                localForecastLowFinal = String.format("%.0f", localForecastLow);
+
+                //Set the data in the TextView
+                localLocationTextView.setText(localName);
+                localTempTextView.setText(localTempFinal + (char) 0x00B0); // to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+                localForeCastHighTextView.setText(localForecastHighFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+                localForecastLowTextView.setText(localForecastLowFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
+
+                String localWeatherInfo = jsonObject.getString("weather");
+                JSONArray jsonArrLocalWeatherInfo = new JSONArray(localWeatherInfo);
+                for (int i = 0; i < jsonArrLocalWeatherInfo.length(); i++){
+
+                    JSONObject jsonPartLocalWeatherInfo = jsonArrLocalWeatherInfo.getJSONObject(i);
+
+                    localCondition = jsonPartLocalWeatherInfo.getString("main");
+                    localConditionDescription = jsonPartLocalWeatherInfo.getString("description");
+                    localConditionIcon = jsonPartLocalWeatherInfo.getString("icon");
+                    localForecastHighIconImageView.setVisibility(View.VISIBLE);
+                    localForecastLowIconImageView.setVisibility(View.VISIBLE);
+                    
+                    //Set the data in the TextView
+                    localConditionTextView.setText(localCondition);
+                    localConditionDescriptionTextView.setText(localConditionDescription);
+
+                    //Call the executeWetherIconDownloader function which will execute the ImageDownLoader class whioh sets the images in the Images View
+                    executeWeatherIconDownloader(localConditionIcon);
+
+                    Log.i("Main", jsonPartLocalWeatherInfo.getString("main"));
+                    Log.i("Main Description", jsonPartLocalWeatherInfo.getString("description"));
+                    Log.i("Main Icon", jsonPartLocalWeatherInfo.getString("icon"));
+
+                }
+
+                Log.i("Local Temp", mainInfo.getString("temp"));
+                Log.i("Local Name", localName);
+
+
+            } catch (JSONException e) {
+
+                e.printStackTrace();
+
+            }
+
+            Log.i("Coordinates API Content", result);
+
+        }
+    }
+
+    public class ImageDownloader extends AsyncTask<String, Void, Bitmap>{
+
+
+        @Override
+        protected Bitmap doInBackground(String... urls) {
+
+            String result;
+            URL url;
+            HttpURLConnection urlConnection;
+
+            try {
+
+                url = new URL(urls[0]);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+
+                InputStream inputStream = urlConnection.getInputStream();
+                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+                return myBitmap;
+
+            } catch (MalformedURLException e) {
+
+                e.printStackTrace();
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            return null;
+        }
 
     }
 
+    /*
     public class DownLoadTask extends AsyncTask<String, Void, String>{
 
 
@@ -345,141 +495,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    */
 
-    public class LocalWeather extends AsyncTask<String, Void, String>{
-
-        @Override
-        protected String doInBackground(String... urls) {
-
-            String result = "";
-            URL url;
-            HttpURLConnection urlconnection;
-
-            try {
-
-                url = new URL (urls[0]);
-                urlconnection = (HttpURLConnection) url.openConnection();
-                InputStream inputStream = urlconnection.getInputStream();
-                InputStreamReader reader = new InputStreamReader(inputStream);
-                int data = reader.read();
-
-                while (data != -1){
-
-                    char current = (char) data;
-
-                    result += current;
-
-                    data = reader.read();
-                }
-
-                return result;
-
-            } catch (Exception e) {
-
-                e.printStackTrace();
-
-            }
-
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            super.onPostExecute(result);
-
-            try {
-
-                JSONObject jsonObject = new JSONObject(result);
-                JSONObject mainInfo = jsonObject.getJSONObject("main");
-
-                localName = jsonObject.getString("name");
-                localTemp = mainInfo.getDouble("temp");
-                localTempFinal = String.format("%.0f", localTemp);
-                localForecastHigh = mainInfo.getDouble("temp_max");
-                localForecastHighFinal = String.format("%.0f", localForecastHigh);
-                localForecastLow = mainInfo.getDouble("temp_min");
-                localForecastLowFinal = String.format("%.0f", localForecastLow);
-
-                //Set the data in the TextView
-                localLocationTextView.setText(localName);
-                localTempTextView.setText(localTempFinal + (char) 0x00B0); // to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
-                localForeCastHighTextView.setText(localForecastHighFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
-                localForecastLowTextView.setText(localForecastLowFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
-
-                String localWeatherInfo = jsonObject.getString("weather");
-                JSONArray jsonArrLocalWeatherInfo = new JSONArray(localWeatherInfo);
-                for (int i = 0; i < jsonArrLocalWeatherInfo.length(); i++){
-
-                    JSONObject jsonPartLocalWeatherInfo = jsonArrLocalWeatherInfo.getJSONObject(i);
-
-                    localCondition = jsonPartLocalWeatherInfo.getString("main");
-                    localConditionDeescription = jsonPartLocalWeatherInfo.getString("description");
-                    localConditionIcon = jsonPartLocalWeatherInfo.getString("icon");
-                    localForecastHighIconImageView.setVisibility(View.VISIBLE);
-                    localForecastLowIconImageView.setVisibility(View.VISIBLE);
-                    
-                    //Set the data in the TextView
-                    localConditionTextView.setText(localCondition);
-                    localConditionDescriptionTextView.setText(localConditionDeescription);
-
-                    //Call the executeWetherIconDownloader function which will execute the ImageDownLoader class whioh sets the images in the Images View
-                    executeWeatherIconDownloader(localConditionIcon);
-
-                    Log.i("Main", jsonPartLocalWeatherInfo.getString("main"));
-                    Log.i("Main Description", jsonPartLocalWeatherInfo.getString("description"));
-                    Log.i("Main Icon", jsonPartLocalWeatherInfo.getString("icon"));
-
-                }
-
-                Log.i("Local Temp", mainInfo.getString("temp"));
-                Log.i("Local Name", localName);
-
-
-            } catch (JSONException e) {
-
-                e.printStackTrace();
-
-            }
-
-            Log.i("Coordinates API Content", result);
-
-        }
-    }
-
-    public class ImageDownloader extends AsyncTask<String, Void, Bitmap>{
-
-
-        @Override
-        protected Bitmap doInBackground(String... urls) {
-
-            String result;
-            URL url;
-            HttpURLConnection urlConnection;
-
-            try {
-
-                url = new URL(urls[0]);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.connect();
-
-                InputStream inputStream = urlConnection.getInputStream();
-                Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
-                return myBitmap;
-
-            } catch (MalformedURLException e) {
-
-                e.printStackTrace();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            return null;
-        }
-
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
