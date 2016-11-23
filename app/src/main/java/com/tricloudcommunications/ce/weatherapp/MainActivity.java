@@ -42,6 +42,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -84,13 +85,16 @@ public class MainActivity extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(cityInput.getWindowToken(), 0);
 
-        city = String.valueOf(cityInput.getText()).trim();
-        //city = city.trim();
-        city = city.replaceAll(" ", "%20");
+        city = String.valueOf(cityInput.getText()).trim(); //Remove white spaces from the begining and end of string
+        //city = city.trim();//Remove white spaces from the begining and end of string
+        //city = city.replaceAll(" ", "%20");// Replaces the whitespace between characters in the string with '%20' for propoer http url format
+
 
         Log.i("Button Status: ", "Button has been clicked and City Entered: " + city);
 
         try {
+
+            city = URLEncoder.encode(city, "UTF-8");// Properly format the string to URL format
 
             if (city.length() > 1) {
 
