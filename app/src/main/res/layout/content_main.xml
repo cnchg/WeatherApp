@@ -22,7 +22,8 @@
         android:textSize="18sp"
         android:textColor="@android:color/white"
         android:layout_below="@+id/mainTextView"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:visibility="invisible"/>
 
     <TextView
         android:text="@string/switchF"
@@ -71,7 +72,8 @@
         android:textSize="34sp"
         android:textColor="@android:color/white"
         android:layout_below="@+id/unitF"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:imeOptions="actionGo"/>
 
     <Button
         android:text="@string/getWeatherButton"
@@ -135,7 +137,9 @@
         android:layout_below="@+id/getWeatherButton"
         android:layout_alignParentStart="true"
         android:id="@+id/forecastGridLayout"
-        android:elevation="1dp">
+        android:elevation="1dp"
+        android:rowCount="4"
+        android:columnCount="6">
 
         <TextView
             android:layout_width="wrap_content"
@@ -143,7 +147,7 @@
             android:id="@+id/localTempTextView"
             android:textColor="@android:color/white"
             android:textSize="154sp"
-            android:layout_row="8"
+            android:layout_row="3"
             android:layout_column="0" />
 
         <TextView
@@ -155,6 +159,14 @@
             android:textColor="@android:color/white"
             android:textSize="24sp" />
 
+        <ImageView
+            android:layout_width="111dp"
+            android:layout_height="87dp"
+            android:id="@+id/localConditionIconImageView"
+            android:contentDescription="@string/localConditionIcon"
+            android:layout_row="1"
+            android:layout_column="0" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -164,29 +176,12 @@
             android:layout_row="0"
             android:layout_column="0" />
 
-        <ImageView
-            android:layout_width="111dp"
-            android:layout_height="87dp"
-            android:id="@+id/localConditionIconImageView"
-            android:contentDescription="@string/localConditionIcon"
-            android:layout_row="1"
-            android:layout_column="0" />
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/localForeCastHighIconImageView"
-            android:layout_row="0"
-            android:layout_column="25"
-            android:paddingTop="9dp"
-            app:srcCompat="@drawable/ic_vertical_align_top_white_24dp"
-            android:contentDescription="@string/localForeCastHighIcon"
-            android:visibility="invisible" />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/localForeCastHighTextView"
+            android:id="@+id/localForecastLowTextView"
+            android:layout_row="0"
+            android:layout_column="5"
             android:textSize="33sp"
             android:textColor="@android:color/white" />
 
@@ -197,14 +192,31 @@
             android:paddingTop="9dp"
             app:srcCompat="@drawable/ic_vertical_align_bottom_white_24dp"
             android:contentDescription="@string/localForecastLowIcon"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            android:layout_row="0"
+            android:layout_column="4" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/localForecastLowTextView"
+            android:id="@+id/localForeCastHighTextView"
             android:textSize="33sp"
-            android:textColor="@android:color/white" />
+            android:textColor="@android:color/white"
+            android:layout_row="0"
+            android:layout_column="3"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/localForeCastHighIconImageView"
+            android:layout_row="0"
+            android:layout_column="2"
+            android:paddingTop="9dp"
+            app:srcCompat="@drawable/ic_vertical_align_top_white_24dp"
+            android:contentDescription="@string/localForeCastHighIcon"
+            android:visibility="invisible" />
+
+
     </GridLayout>
 
 </RelativeLayout>

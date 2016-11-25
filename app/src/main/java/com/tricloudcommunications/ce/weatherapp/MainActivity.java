@@ -11,6 +11,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -19,10 +20,12 @@ import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -43,6 +46,8 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -77,6 +82,9 @@ public class MainActivity extends AppCompatActivity {
     String localForecastLowFinal = "";
     double localTemp;
     String localTempFinal = "";
+    String localLocationCountry = "";
+    String localLocationSunRise = "";
+    String localLocationSunSunset = "";
 
     public void getWeather(View view) {
 
@@ -85,10 +93,48 @@ public class MainActivity extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(cityInput.getWindowToken(), 0);
 
+        //Keyboard Done button is press
+        cityInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                 boolean handle = false;
+
+                Log.i("Key Board","Whats really good");
+
+                if (actionId == EditorInfo.IME_ACTION_GO){
+
+                    executeWeather();
+
+                }
+
+                return false;
+            }
+        });
+
+        /*
+        cityInput.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
+
+                    //executeWeather();
+
+                    Log.i("Keyboard Event", "Hold up wait a minite");
+
+                    return true;
+                }
+
+                return false;
+            }
+        });
+        */
+
+
+
         city = String.valueOf(cityInput.getText()).trim(); //Remove white spaces from the begining and end of string
         //city = city.trim();//Remove white spaces from the begining and end of string
         //city = city.replaceAll(" ", "%20");// Replaces the whitespace between characters in the string with '%20' for propoer http url format
-
 
         Log.i("Button Status: ", "Button has been clicked and City Entered: " + city);
 
@@ -117,7 +163,6 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(getApplicationContext(), "Somw thing Went Wrong", Toast.LENGTH_LONG).show();
         }
-
 
     }
 
@@ -175,7 +220,9 @@ public class MainActivity extends AppCompatActivity {
 
         }else{
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
+
+            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " City:" + city + " unitType:" + unitType);
         }
@@ -265,8 +312,6 @@ public class MainActivity extends AppCompatActivity {
         //Call the executeWeather function which will execute the localWeather class
         executeWeather();
 
-
-
         //Switch Even listener. Listen for when the switch is toggled
         unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 
@@ -355,6 +400,8 @@ public class MainActivity extends AppCompatActivity {
                 localForecastLowTextView.setText(localForecastLowFinal + (char) 0x00B0);// to add the degree symbol to the TextView use: localTempTextView.setText(localTempFinal + (char) 0x00B0)
 
                 String localWeatherInfo = jsonObject.getString("weather");
+                String localLocationTime = jsonObject.getString("dt");
+
                 JSONArray jsonArrLocalWeatherInfo = new JSONArray(localWeatherInfo);
                 for (int i = 0; i < jsonArrLocalWeatherInfo.length(); i++){
 
@@ -379,8 +426,28 @@ public class MainActivity extends AppCompatActivity {
 
                 }
 
-                Log.i("Local Temp", mainInfo.getString("temp"));
-                Log.i("Local Name", localName);
+                JSONObject sysInfo = jsonObject.getJSONObject("sys");
+                localLocationCountry = sysInfo.getString("country");
+                localLocationSunRise = sysInfo.getString("sunrise");
+                localLocationSunSunset = sysInfo.getString("sunset");
+
+                //code for localLocationSunRise
+                long sunRise = Long.valueOf(localLocationSunRise)*1000;// its need to be in milisecond
+                Date encodedSunrise = new java.util.Date(sunRise);
+                String finalSunRise = new SimpleDateFormat("MM dd, yyyy hh:mma").format(encodedSunrise);
+
+                //code for localLocationSunSet
+                long sunSet = Long.valueOf(localLocationSunSunset)*1000;// its need to be in milisecond
+                Date encodedSunset = new java.util.Date(sunSet);
+                String finalSunSet = new SimpleDateFormat("MM dd, yyyy hh:mma").format(encodedSunset);
+
+                //Log.i("Local Temp", mainInfo.getString("temp"));
+                //Log.i("Local Name", localName);
+                Log.i("Location Country", localLocationCountry);
+                Log.i("Location Sunrise", localLocationSunRise);
+                Log.i("Location Sunset", localLocationSunSunset);
+                Log.i("Local Sun Rise Time", finalSunRise);
+                Log.i("Local Sun Set Time", finalSunSet);
 
 
             } catch (JSONException e) {
@@ -421,7 +488,6 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
 
             return null;
         }

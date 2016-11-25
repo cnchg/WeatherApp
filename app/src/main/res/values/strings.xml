@@ -9,7 +9,7 @@
     <string name="switchUnit">&#176;C &#176;F</string>
     <string name="switchC">&#176;C</string>
     <string name="switchF">&#176;F</string>
-    <string name="weatherTemp">--&#176;</string>
+    <string name="weatherTemp">102&#176;</string>
     <string name="locationTextView">Location</string>
     <string name="localCondition">Clear</string>
     <string name="localConditionDescription">Cloud Cover</string>
@@ -18,4 +18,6 @@
     <string name="localForecastLow">12&#176;</string>
     <string name="localForeCastHighIcon">Forecast High Icon</string>
     <string name="localForecastLowIcon">Forecast Low Icon</string>
+    <string name="localSunrise">5:30 AM</string>
+    <string name="localSunset">7:30 PM</string>
 </resources>
