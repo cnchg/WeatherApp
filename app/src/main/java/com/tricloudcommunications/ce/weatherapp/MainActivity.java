@@ -30,21 +30,17 @@ import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.concurrent.ExecutionException;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -133,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
             locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat=" + localLatitude + "&lon=" + localLongitude + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " lat:" + localLatitude + " lon:" + localLongitude + " unitType:" + unitType);
+
 
         } else {
 
@@ -236,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
         }
         // Register the listener with the Location Manager to receive location updates
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
 
 
 
