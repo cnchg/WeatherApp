@@ -1,31 +1,27 @@
 package com.tricloudcommunications.ce.weatherapp;
 
 import android.Manifest;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompatBase;
 import android.support.v4.graphics.ColorUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -93,45 +89,6 @@ public class MainActivity extends AppCompatActivity {
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(cityInput.getWindowToken(), 0);
 
-        //Keyboard Done button is press
-        cityInput.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                 boolean handle = false;
-
-                Log.i("Key Board","Whats really good");
-
-                if (actionId == EditorInfo.IME_ACTION_GO){
-
-                    executeWeather();
-
-                }
-
-                return false;
-            }
-        });
-
-        /*
-        cityInput.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) && (keyCode == KeyEvent.KEYCODE_ENTER)) {
-
-                    //executeWeather();
-
-                    Log.i("Keyboard Event", "Hold up wait a minite");
-
-                    return true;
-                }
-
-                return false;
-            }
-        });
-        */
-
-
-
         city = String.valueOf(cityInput.getText()).trim(); //Remove white spaces from the begining and end of string
         //city = city.trim();//Remove white spaces from the begining and end of string
         //city = city.replaceAll(" ", "%20");// Replaces the whitespace between characters in the string with '%20' for propoer http url format
@@ -166,70 +123,29 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    public void getCurrentLocation(){
-
-        //Get the Current user location
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-        //Conditions for asking user permission to access location information
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
-            return;
-        }
-        Location location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-
-        double longitude = location.getLongitude();
-        double latitude = location.getLatitude();
-
-        localLongitude = String.valueOf(longitude);
-        localLatitude = String.valueOf(latitude);
-        nearMeImageView.setVisibility(View.VISIBLE);
-
-        Log.i("longitude", String.valueOf(longitude));
-        Log.i("latitude", String.valueOf(latitude));
-
-
-    }
-
-    public void executeWeather(){
+    public void executeWeather() {
 
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
 
-        if (weatherSearch.equals(false)){
+        if (weatherSearch.equals(false)) {
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat="+localLatitude+"&lon="+localLongitude+"&units="+unitType+"&appid=968ed395d494be9817a5c648ed7aa697");
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat=" + localLatitude + "&lon=" + localLongitude + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " lat:" + localLatitude + " lon:" + localLongitude + " unitType:" + unitType);
 
-        }else{
+        } else {
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
+            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
 
-            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " City:" + city + " unitType:" + unitType);
         }
 
     }
 
-    public void executeWeatherIconDownloader(String iconImageName){
+    public void executeWeatherIconDownloader(String iconImageName) {
 
         //start and execute the ImageDownloader() class to download the weather icon image
         ImageDownloader downloadImageTask = new ImageDownloader();
@@ -237,19 +153,16 @@ public class MainActivity extends AppCompatActivity {
 
         try {
 
-            myImage = downloadImageTask.execute("http://openweathermap.org/img/w/"+iconImageName+".png").get();
+            myImage = downloadImageTask.execute("http://openweathermap.org/img/w/" + iconImageName + ".png").get();
             //myImage = downloadImageTask.execute("http://openweathermap.org/img/w/10d.png").get();
 
             //set the image in the Image View
             localConditionIconImageView.setImageBitmap(myImage);
 
 
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
 
     }
 
@@ -272,6 +185,61 @@ public class MainActivity extends AppCompatActivity {
         //Will will pop up when user click editView.
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
 
+        //Requesting Location Updates - Source: https://developer.android.com/guide/topics/location/strategies.html
+        // Acquire a reference to the system Location Manager
+        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        // Define a listener that responds to location updates
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+                // Called when a new location is found by the network location provider.
+                double longitude = location.getLongitude();
+                double latitude = location.getLatitude();
+                localLongitude = String.valueOf(longitude);
+                localLatitude = String.valueOf(latitude);
+                nearMeImageView.setVisibility(View.VISIBLE);
+
+                //Call the executeWeather function which will execute the localWeather class
+                executeWeather();
+
+                Log.i("longitude", String.valueOf(longitude));
+                Log.i("latitude", String.valueOf(latitude));
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+        //Conditions for asking user permission to access location information
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        // Register the listener with the Location Manager to receive location updates
+        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
+
+
+
+        //Set up the global variables needed for this app
         nearMeImageView = (ImageView) findViewById(R.id.nearMeImageView);
         localConditionIconImageView = (ImageView) findViewById(R.id.localConditionIconImageView);
         localForecastHighIconImageView = (ImageView) findViewById(R.id.localForeCastHighIconImageView);
@@ -287,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
         localForecastLowTextView = (TextView) findViewById(R.id.localForecastLowTextView);
 
 
+
         /* Set the background alpha color for the forecastGridLayoutint
             alpha = 85;
             textView.setBackgroundColor(ColorUtils.setAlphaComponent(Color.Red,alpha));
@@ -296,8 +265,6 @@ public class MainActivity extends AppCompatActivity {
         int alpha = 85;
         forecastGridLauout.setBackgroundColor(ColorUtils.setAlphaComponent(Color.BLACK,alpha));
 
-        //Call the get user GPS location data like latitude and longitude
-        getCurrentLocation();
 
         //Check the position if the forecast unit type  like Celcius of Ferehenhight
         if (unitSwitch.isChecked()) {
@@ -309,8 +276,6 @@ public class MainActivity extends AppCompatActivity {
             unitType = "imperial";
         }
 
-        //Call the executeWeather function which will execute the localWeather class
-        executeWeather();
 
         //Switch Even listener. Listen for when the switch is toggled
         unitSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -479,14 +444,13 @@ public class MainActivity extends AppCompatActivity {
 
                 InputStream inputStream = urlConnection.getInputStream();
                 Bitmap myBitmap = BitmapFactory.decodeStream(inputStream);
+
                 return myBitmap;
 
-            } catch (MalformedURLException e) {
+            } catch (Exception e) {
 
                 e.printStackTrace();
 
-            } catch (IOException e) {
-                e.printStackTrace();
             }
 
             return null;
