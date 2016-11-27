@@ -152,6 +152,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void executeWeather() {
 
+        String weatherAppId = "";//Openweathermap.org api app id
+
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
 
@@ -159,7 +161,7 @@ public class MainActivity extends AppCompatActivity {
 
             localGPSFix.setVisibility(View.INVISIBLE);
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat=" + localLatitude + "&lon=" + localLongitude + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat=" + localLatitude + "&lon=" + localLongitude + "&units=" + unitType + "&appid="+weatherAppId);
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " lat:" + localLatitude + " lon:" + localLongitude + " unitType:" + unitType);
 
@@ -169,8 +171,8 @@ public class MainActivity extends AppCompatActivity {
             localGPSFix.setVisibility(View.VISIBLE);
             nearMeImageView.setVisibility(View.INVISIBLE);
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
-            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid="+weatherAppId);//Global cities
+            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid="+weatherAppId);//US cities only
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " City:" + city + " unitType:" + unitType);
         }
@@ -499,6 +501,7 @@ public class MainActivity extends AppCompatActivity {
 
                 //Initialize the FlickrAPIDataDownload() class which downloads the API JSON data and trigger a call to the setFlickrGlobalVariables() method with then down load the image from Flickr and set it as the background image.
                 try {
+                    String flickrAppKey = ""; //Use your flickr App Key
                     String flickrTextTag = URLEncoder.encode(localConditionDescription,"UTF-8");// Properly format the string to URL format
                     String flickrTagsTag = URLEncoder.encode(localName, "UTF-8");
 
@@ -509,8 +512,8 @@ public class MainActivity extends AppCompatActivity {
                      Make sure that you 'Do not sign call' by adding this to the end of the url string '&format=json&nojsoncallback=1'
                     */
                     FlickrAPIDataDownload getFlickrDataTask = new FlickrAPIDataDownload();
-                    //getFlickrDataTask.execute("http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=65dd98b8db61ede0ad592cb221e31201&tags=sun&media=photos&per_page=1&page=1&format=json");
-                    getFlickrDataTask.execute("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key=65dd98b8db61ede0ad592cb221e31201&text="+flickrTextTag+"&tags="+flickrTagsTag+"&media=photos&per_page=1&page=1&format=json&nojsoncallback=1");
+                    //getFlickrDataTask.execute("http://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+flickrAppKey+"&tags=sun&media=photos&per_page=1&page=1&format=json");
+                    getFlickrDataTask.execute("https://api.flickr.com/services/rest/?method=flickr.photos.search&api_key="+flickrAppKey+"&text="+flickrTextTag+"&tags="+flickrTagsTag+"&media=photos&per_page=1&page=1&format=json&nojsoncallback=1");
 
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
