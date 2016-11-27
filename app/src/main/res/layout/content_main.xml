@@ -127,6 +127,15 @@
             android:layout_weight="1"
             android:textSize="33sp"
             android:textColor="@android:color/white" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_gps_fixed_white_18dp"
+            android:id="@+id/locationGPSFixImageView"
+            android:layout_weight="0.02"
+            android:visibility="invisible"
+            android:onClick="localFixGPS"/>
     </LinearLayout>
 
     <GridLayout

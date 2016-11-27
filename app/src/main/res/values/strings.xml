@@ -20,4 +20,5 @@
     <string name="localForecastLowIcon">Forecast Low Icon</string>
     <string name="localSunrise">5:30 AM</string>
     <string name="localSunset">7:30 PM</string>
+    <string name="locationGPSFix">GPS Fix</string>
 </resources>

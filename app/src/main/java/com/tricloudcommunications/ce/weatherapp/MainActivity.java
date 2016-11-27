@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     ImageView localConditionIconImageView;
     ImageView localForecastHighIconImageView;
     ImageView localForecastLowIconImageView;
+    ImageView localGPSFix;
     EditText cityInput;
     Switch unitSwitch;
     GridLayout forecastGridLauout;
@@ -139,12 +140,24 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void localFixGPS(View view){
+
+        weatherSearch = false;
+        cityInput.setText("");
+        executeWeather();
+
+        Log.i("GPS Fix Triggered", "true");
+
+    }
+
     public void executeWeather() {
 
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
 
         if (weatherSearch.equals(false)) {
+
+            localGPSFix.setVisibility(View.INVISIBLE);
 
             locWeather.execute("http://api.openweathermap.org/data/2.5/weather?lat=" + localLatitude + "&lon=" + localLongitude + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");
 
@@ -153,9 +166,11 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
 
-            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
+            localGPSFix.setVisibility(View.VISIBLE);
+            nearMeImageView.setVisibility(View.INVISIBLE);
 
-            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
+            locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//Global cities
+            //locWeather.execute("http://api.openweathermap.org/data/2.5/weather?q=" + city + ",us&units=" + unitType + "&appid=968ed395d494be9817a5c648ed7aa697");//US cities only
 
             //Log.i("Weather Search is: ", weatherSearch.toString() + " City:" + city + " unitType:" + unitType);
         }
@@ -317,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
         localConditionIconImageView = (ImageView) findViewById(R.id.localConditionIconImageView);
         localForecastHighIconImageView = (ImageView) findViewById(R.id.localForeCastHighIconImageView);
         localForecastLowIconImageView = (ImageView) findViewById(R.id.localForecastLowIconImageView);
+        localGPSFix = (ImageView) findViewById(R.id.locationGPSFixImageView);
         cityInput = (EditText) findViewById(R.id.enterLocationEditText);
         unitSwitch = (Switch) findViewById(R.id.unitSwitch);
         forecastGridLauout = (GridLayout) findViewById(R.id.forecastGridLayout);
@@ -500,7 +516,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-
                 //Log.i("Local Temp", mainInfo.getString("temp"));
                 //Log.i("Local Name", localName);
                 Log.i("Location Country", localLocationCountry);
@@ -508,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i("Location Sunset", localLocationSunSunset);
                 Log.i("Local Sun Rise Time", finalSunRise);
                 Log.i("Local Sun Set Time", finalSunSet);
-
 
             } catch (JSONException e) {
 
