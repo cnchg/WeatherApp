@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void executeWeather() {
 
-        String weatherAppId = "";//Openweathermap.org api app id
+        String weatherAppId = "";//use your Openweathermap.org api app id
 
         //start and execute the LocalWeather() class that you wrote below
         LocalWeather locWeather = new LocalWeather();
